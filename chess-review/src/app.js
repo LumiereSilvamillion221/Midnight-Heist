@@ -11,14 +11,17 @@ const SAMPLE='[Event "Opera Game"]\n[Site "Paris FRA"]\n[Date "1858.??.??"]\n[Wh
 const TH={green:['#eeeed2','#769656','Green'],brown:['#f0d9b5','#b58863','Brown'],blue:['#dee3e6','#8ca2ad','Blue'],purple:['#efefef','#8877b7','Purple'],slate:['#d7dbe0','#5e6a7a','Slate']};
 const DEF={snd:true,vol:70,hap:true,theme:'green',pieces:'cburnett',coords:true,arrow:'bad',evalbar:true,lines:2,speed:900,awake:true};
 let S=Object.assign({},DEF,jp('rw-set',{}));const saveS=()=>ls('rw-set',JSON.stringify(S));
-const EH=(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform())?window.Capacitor.registerPlugin('EngineHost'):null;
+// The Android bridge only injects nativePromise/addListener (not registerPlugin), so wrap those directly.
+const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()&&CAP.nativePromise);
+const nc=(m,o)=>CAP.nativePromise('EngineHost',m,o||{});
+const EH=NATIVE?{pickFile:o=>nc('pickFile',o),listOex:()=>nc('listOex'),importOex:o=>nc('importOex',o),start:o=>nc('start',o),send:o=>nc('send',o),stop:o=>nc('stop',o),remove:o=>nc('remove',o),haptic:o=>nc('haptic',o),addListener:(n,f)=>Promise.resolve(CAP.addListener('EngineHost',n,f))}:null;
 const BI=Object.assign({id:'sf',name:'Stockfish 19 Lite (built-in)',kind:'wasm',args:'',opts:'',lim:'depth',val:12},jp('rw-b',{}));
 let ENG=jp('rw-eng',[]),engSel=ls('rw-engsel')||'sf',lib=jp('rw-lib',[]),oex=[];
 const saveE=()=>{ls('rw-eng',JSON.stringify(ENG));ls('rw-engsel',engSel);};
 const allEng=()=>[BI,...ENG],curEng=()=>allEng().find(e=>e.id===engSel)||BI;
 let G=null,R=null,ply=0,flip=false,busy=false,abort=false,timer=null,live=null;
 const TXT={brilliant:'a brilliant move',great:'a great move',best:'the best move',excellent:'an excellent move',good:'a good move',book:'a book move',inaccuracy:'an inaccuracy',mistake:'a mistake',miss:'a miss',blunder:'a blunder'};
-const hap=ms=>{if(!S.hap)return;try{if(EH)EH.haptic({ms});else if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}};
+const hap=ms=>{if(!S.hap)return;try{if(EH)EH.haptic({ms}).catch(()=>{});else if(navigator.vibrate)navigator.vibrate(ms);}catch(e){}};
 function snd(m){if(S.snd){const t=m.san;sfx(/#/.test(t)?'end':/\+/.test(t)?'check':/^O-O/.test(t)?'castle':/=/.test(t)?'promote':/x/.test(t)?'capture':'move',S.vol/100);}hap(m.san.includes('x')?24:10);}
 function parse(pgn){const c=new Chess();c.loadPgn(pgn);const mv=c.history({verbose:true});if(!mv.length)throw new Error('No moves found in that PGN');const h=c.header();
  return{id:Date.now(),pgn,moves:mv,fens:[mv[0].before,...mv.map(m=>m.after)],h,title:(h.White||'White')+' vs '+(h.Black||'Black'),an:null};}
@@ -93,10 +96,14 @@ function impView(){openM(`<div class="mh">Import a game<button class="ib" data-a
 function tryLoad(txt){try{const g=parse(txt),old=lib.find(x=>x.pgn===txt);if(old&&old.an){g.id=old.id;g.an=old.an;}openGame(g);sfx('tick',S.vol/100);}catch(e){const el=$('#err');if(el)el.textContent='Could not read that PGN: '+String(e.message||e).slice(0,120);}}
 // ---- engines ----
 class WasmT{constructor(){this.w=new Worker('engine/stockfish.js');this.w.onmessage=e=>this.onl&&this.onl(String(e.data));}post(c){this.w.postMessage(c);}close(){this.w.terminate();}}
-class NatT{constructor(c){this.id='e'+Date.now();EH.addListener('line',e=>{if(e.id===this.id&&this.onl)this.onl(e.line);}).then(h=>{this.h=h;});this.ready=EH.start({id:this.id,path:c.path,args:(c.args||'').split(/\s+/).filter(Boolean)});}
- post(c){this.ready.then(()=>EH.send({id:this.id,cmd:c}));}close(){EH.stop({id:this.id});if(this.h)this.h.remove();}}
+class NatT{constructor(c){this.id='e'+Date.now();const fail=e=>{if(this.onerr)this.onerr(e);};
+ EH.addListener('line',e=>{if(e.id===this.id&&this.onl)this.onl(e.line);}).then(h=>{this.h=h;});
+ EH.addListener('exit',e=>{if(e.id===this.id)fail(new Error('the engine process exited'));}).then(h=>{this.h2=h;});
+ this.ready=EH.start({id:this.id,path:c.path,args:(c.args||'').split(/\s+/).filter(Boolean)});this.ready.catch(fail);}
+ post(c){this.ready.then(()=>EH.send({id:this.id,cmd:c})).catch(()=>{});}
+ close(){EH.stop({id:this.id}).catch(()=>{});if(this.h)this.h.remove();if(this.h2)this.h2.remove();}}
 class Engine{
- constructor(c){this.c=c;this.t=c.kind==='wasm'?new WasmT():new NatT(c);this.q=[];this.t.onl=l=>{this.q=this.q.filter(f=>!f(l));if(this.cb)this.cb(l);};}
+ constructor(c){this.c=c;this.t=c.kind==='wasm'?new WasmT():new NatT(c);this.q=[];this.t.onl=l=>{this.q=this.q.filter(f=>!f(l));if(this.cb)this.cb(l);};this.t.onerr=e=>{if(this.rej)this.rej(new Error(e.message||String(e)));};}
  send(x){this.t.post(x);}
  wait(re,ms){return new Promise((res,rej)=>{this.rej=rej;const to=setTimeout(()=>rej(new Error('Engine did not answer ('+re+')')),ms);this.q.push(l=>re.test(l)&&(clearTimeout(to),res(),true));});}
  async init(){const a=this.wait(/^uciok/,60000);this.send('uci');await a;

@@ -1,4 +1,3 @@
 - OEX engine discovery code (android-overlay/.../com/kalab/chess/enginesupport): Apache License 2.0, from the Open Exchange support library as used by DroidFish.
 - "Merida" piece set by Armando Hernandez Marroquin (GPL), from the lichess-org/lila repository.
 - Engines you import yourself (Stockfish builds, Leela Chess Zero, OEX apps) keep their own licences.
-- Signing: every APK is signed with the fixed key in android-overlay/rookwise.p12 (password "rookwise") so new builds install over old ones. The key is public in this repo, which is fine for a personal sideloaded app. Add your own private key later if you ever publish it.

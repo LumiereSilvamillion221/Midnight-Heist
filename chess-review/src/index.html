@@ -67,8 +67,14 @@ textarea{width:100%;height:110px;font:13px monospace}
 .sec{margin:14px 0 2px;color:var(--grn);font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase}
 .fld{display:grid;gap:4px;margin:8px 0}.fld small{color:var(--mut)}.fld input,.fld textarea{width:100%}.fld textarea{height:70px}
 /*PIECES*/
-</style></head><body>
-<header><span class="logo"><img src="logo.svg" alt="">Rook<b>wise</b></span><span><button class="ib" data-a="imp" aria-label="Import game" id="hImp"></button><button class="ib" data-a="set" aria-label="Settings" id="hSet"></button></span></header>
+</style>
+<script>
+window.__showErr=function(m){var d=document.getElementById('errbar');if(!d){d=document.createElement('div');d.id='errbar';d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#7a1c14;color:#fff;padding:10px 12px;border-radius:10px;font:12px/1.35 monospace;white-space:pre-wrap;max-height:40vh;overflow:auto';d.onclick=function(){d.remove()};document.body.appendChild(d);}d.textContent+=m+'\n';};
+window.addEventListener('error',function(e){window.__showErr('Error: '+e.message+' ('+String(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno+')');});
+window.addEventListener('unhandledrejection',function(e){window.__showErr('Promise error: '+(e.reason&&e.reason.message||e.reason));});
+</script>
+</head><body>
+<header><span class="logo"><img src="logo.svg" alt=""><span>Rook<b>wise</b></span></span><span><button class="ib" data-a="imp" aria-label="Import game" id="hImp"></button><button class="ib" data-a="set" aria-label="Settings" id="hSet"></button></span></header>
 <main>
 <section><div class="pl" id="pTop"></div>
 <div id="bw"><div id="eb"><div id="ebw"></div><span id="ebl"></span></div><div id="board"></div></div>
@@ -82,4 +88,4 @@ textarea{width:100%;height:110px;font:13px monospace}
 <div class="card"><h3>Moves</h3><div id="moves"></div></div></aside></main>
 <div id="modal"><div class="card" id="mc"></div></div>
 <input type="file" id="fi" accept=".pgn,.txt,text/plain" hidden>
-<script src="app.js"></script></body></html>
+<script src="app.js" onerror="window.__showErr('app.js failed to load')"></script></body></html>

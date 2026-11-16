@@ -2,7 +2,7 @@ import {build} from 'esbuild';
 import fs from 'fs';
 fs.rmSync('www',{recursive:true,force:true});
 fs.mkdirSync('www/engine',{recursive:true});
-await build({entryPoints:['src/app.js'],bundle:true,format:'iife',minify:true,outfile:'www/app.js'});
+await build({entryPoints:['src/app.js'],bundle:true,format:'iife',minify:true,target:['chrome70'],outfile:'www/app.js'});
 let css='';
 for(const set of fs.readdirSync('src/pieces'))for(const f of fs.readdirSync('src/pieces/'+set))css+='.set-'+set+' .'+f.replace('.svg','')+'{background-image:url("data:image/svg+xml;base64,'+fs.readFileSync('src/pieces/'+set+'/'+f).toString('base64')+'")}';
 fs.writeFileSync('www/index.html',fs.readFileSync('src/index.html','utf8').replace('/*PIECES*/',css));
