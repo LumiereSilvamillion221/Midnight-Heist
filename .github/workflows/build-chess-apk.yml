@@ -29,6 +29,7 @@ jobs:
         run: |
           cp -r android-overlay/. android/
           sed -i 's/targetSdkVersion = 34/targetSdkVersion = 28/' android/variables.gradle
+          python3 scripts/patch-signing.py
           sed -i 's|<uses-permission android:name="android.permission.INTERNET" />|&\n    <uses-permission android:name="android.permission.VIBRATE" />|' android/app/src/main/AndroidManifest.xml
       - run: npx cap sync android
       - name: Build APK
