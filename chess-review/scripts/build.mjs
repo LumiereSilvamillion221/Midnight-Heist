@@ -1,0 +1,10 @@
+import {build} from 'esbuild';
+import fs from 'fs';
+fs.rmSync('www',{recursive:true,force:true});
+fs.mkdirSync('www/engine',{recursive:true});
+await build({entryPoints:['src/app.js'],bundle:true,format:'iife',minify:true,outfile:'www/app.js'});
+let css='';
+for(const f of fs.readdirSync('src/pieces'))css+='.'+f.replace('.svg','')+'{background-image:url("data:image/svg+xml;base64,'+fs.readFileSync('src/pieces/'+f).toString('base64')+'")}';
+fs.writeFileSync('www/index.html',fs.readFileSync('src/index.html','utf8').replace('/*PIECES*/',css));
+for(const f of fs.readdirSync('src/engine'))fs.copyFileSync('src/engine/'+f,'www/engine/'+f);
+console.log('built www/');

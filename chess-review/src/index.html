@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rookwise Review</title>
+<style>
+:root{--bg:#302e2b;--card:#262522;--ink:#f3f3f3;--mut:#a7a6a2;--grn:#81b64c;box-sizing:border-box}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:500 15px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;background:#21201d;position:sticky;top:0;z-index:5}
+.logo{font-weight:800;font-size:19px}.logo b{color:var(--grn)}
+button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:9px 14px;background:#3d3a37;color:var(--ink);cursor:pointer}
+button.pri{background:var(--grn);color:#fff;box-shadow:0 3px 0 #5d8a35}
+select{font:inherit;background:#3d3a37;color:var(--ink);border:0;border-radius:8px;padding:8px}
+main{display:grid;gap:12px;padding:10px 10px calc(env(safe-area-inset-bottom,0px) + 16px);max-width:1000px;margin:auto}
+@media(min-width:820px){main{grid-template-columns:minmax(0,1fr) 350px;align-items:start}}
+#bw{display:flex;gap:6px}
+#eb{width:22px;flex:none;background:#403d39;border-radius:4px;position:relative;overflow:hidden}
+#ebw{position:absolute;left:0;right:0;background:#f3f3f3;transition:height .3s}
+#ebl{position:absolute;left:0;right:0;font:700 9px system-ui;text-align:center;padding:2px 0}
+#board{position:relative;flex:1;aspect-ratio:1;border-radius:4px;overflow:hidden;user-select:none}
+.sq{position:absolute;width:12.5%;height:12.5%}.sq.l{background:#eeeed2}.sq.d{background:#769656}
+.sq.h.l{background:#f6f669}.sq.h.d{background:#baca2b}
+.p{position:absolute;inset:0;background-size:100%;display:block}
+.rk,.fl{position:absolute;font:700 10px system-ui;font-style:normal}.rk{left:3px;top:2px}.fl{right:3px;bottom:1px}
+.sq.l .rk,.sq.l .fl{color:#769656}.sq.d .rk,.sq.d .fl{color:#eeeed2}
+.bd{position:absolute;right:-2%;top:-2%;width:40%;height:40%;border-radius:50%;font:800 10px/1 system-ui;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;z-index:3;box-shadow:0 1px 3px #0009}
+.ar{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.pl{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 6px 28px;font-weight:700}
+.pl small{color:var(--mut);font-weight:500}.pl i{font-style:normal;background:#3d3a37;border-radius:6px;padding:2px 8px;font-size:13px}
+#nav{display:flex;gap:8px;margin-top:6px;padding-left:28px}#nav button{flex:1;font-size:17px;padding:10px 0}
+.card{background:var(--card);border-radius:10px;padding:12px}
+#coach{display:flex;gap:10px;align-items:flex-start;min-height:64px}
+#coach .ic{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;background:#3d3a37}
+#coach p{margin:0 0 3px}#coach small{color:var(--mut)}
+.bar{height:8px;background:#403d39;border-radius:4px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--grn);width:0}
+.acc{display:flex;gap:10px;margin:6px 0 10px}.acc div{flex:1;border-radius:8px;padding:8px;text-align:center;font-size:12px}
+.acc b{display:block;font-size:22px}
+table{width:100%;border-collapse:collapse;font-size:14px}td{padding:4px 2px}td:not(:nth-child(2)){text-align:center;width:22%}td:nth-child(2){color:var(--mut)}
+.dot{display:inline-block;width:20px;height:20px;border-radius:50%;text-align:center;font:800 10px/20px system-ui;color:#fff;margin-right:6px}
+#graph{width:100%;height:70px;background:#403d39;border-radius:6px;display:block;cursor:pointer}
+#moves{display:grid;grid-template-columns:30px 1fr 1fr;gap:2px;max-height:260px;overflow:auto}
+#moves .n{color:var(--mut);padding:5px 0}#moves a{padding:5px 6px;border-radius:5px;cursor:pointer;font-weight:600}#moves a.on{background:#4b4845}
+#moves em{font-style:normal;font-size:11px;margin-right:4px;font-weight:800}
+#modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;justify-content:center;z-index:20}
+#modal .card{width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:14px 14px 0 0}
+textarea{width:100%;height:110px;background:#1d1c1a;color:var(--ink);border:1px solid #4b4845;border-radius:8px;padding:8px;font:13px monospace}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.g{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;border-top:1px solid #3d3a37;cursor:pointer}
+.g small{color:var(--mut)}.err{color:#fa412d;font-size:13px}
+/*PIECES*/
+</style></head><body>
+<header><span class="logo">♞ Rook<b>wise</b></span><span><button data-a="imp">+ Import game</button></span></header>
+<main>
+<section><div class="pl" id="pTop"></div>
+<div id="bw"><div id="eb"><div id="ebw"></div><span id="ebl"></span></div><div id="board"></div></div>
+<div class="pl" id="pBot"></div>
+<div id="nav"><button data-a="first">⏮</button><button data-a="prev">◀</button><button data-a="next">▶</button><button data-a="last">⏭</button><button data-a="flip">⇅</button></div></section>
+<aside style="display:grid;gap:12px">
+<div class="card" id="coach"></div><div class="card" id="rev"></div>
+<div class="card"><svg id="graph" viewBox="0 0 100 40" preserveAspectRatio="none"></svg></div>
+<div class="card" id="moves"></div></aside></main>
+<div id="modal"><div class="card"><b>Import a game</b>
+<textarea id="pgn" placeholder="Paste a PGN here"></textarea><div class="err" id="err"></div>
+<div class="row"><button class="pri" data-a="load">Load PGN</button><button data-a="file">Open .pgn file</button><button data-a="sample">Sample game</button><button data-a="close">Close</button></div>
+<input type="file" id="fi" accept=".pgn,.txt,text/plain" hidden><div id="lib"></div></div></div>
+<script src="app.js"></script></body></html>
