@@ -66,6 +66,12 @@ textarea{width:100%;height:110px;font:13px monospace}
 .set input[type=range]{width:150px;accent-color:var(--grn)}
 .sec{margin:14px 0 2px;color:var(--grn);font-weight:800;font-size:12px;letter-spacing:.8px;text-transform:uppercase}
 .fld{display:grid;gap:4px;margin:8px 0}.fld small{color:var(--mut)}.fld input,.fld textarea{width:100%}.fld textarea{height:70px}
+.dt{position:absolute;left:35%;top:35%;width:30%;height:30%;border-radius:50%;background:rgba(0,0,0,.22);pointer-events:none;z-index:1}
+.dt.cp{left:5%;top:5%;width:90%;height:90%;background:none;border:5px solid rgba(0,0,0,.22)}
+.am #board{touch-action:none;cursor:pointer}
+.promo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76%;display:flex;gap:2px;background:#f4f3f0;border-radius:10px;box-shadow:0 4px 22px #000b;z-index:6;padding:4px}
+.promo .p{position:relative;inset:auto;flex:1;aspect-ratio:1;cursor:pointer;border-radius:8px}.promo .p:active{background:#d8d6cf}
+.ln:active{background:#302e2b}
 /*PIECES*/
 </style>
 <script>
@@ -81,7 +87,7 @@ window.addEventListener('unhandledrejection',function(e){window.__showErr('Promi
 <div class="pl" id="pBot"></div>
 <div id="nav"></div></section>
 <aside style="display:grid;gap:12px">
-<div class="card" id="coach"></div><div class="card" id="rev"></div>
+<div class="card" id="coach"></div><div class="card" id="var" style="display:none"></div><div class="card" id="rev"></div>
 <div class="card" id="lines" style="display:none"></div>
 <div class="card"><h3>Evaluation</h3><svg id="graph" viewBox="0 0 100 40" preserveAspectRatio="none"></svg></div>
 <div class="card" id="key" style="display:none"></div>
